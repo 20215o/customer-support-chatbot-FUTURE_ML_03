@@ -3,12 +3,38 @@ import streamlit as st
 from openai import OpenAI
 from google.cloud import dialogflow_v2 as dialogflow
 from google.api_core.exceptions import GoogleAPIError
-from config import (
-    OPENAI_API_KEY,
-    DIALOGFLOW_PROJECT_ID,
-    GOOGLE_APPLICATION_CREDENTIALS_PATH,
-    TELEGRAM_BOT_TOKEN,
-)
+
+# Try to get environment variables first, fallback to config.py
+try:
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    DIALOGFLOW_PROJECT_ID = os.getenv("DIALOGFLOW_PROJECT_ID")
+    GOOGLE_APPLICATION_CREDENTIALS_PATH = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_PATH")
+    TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+    
+    # If environment variables are not set, try to import from config.py
+    if not all([OPENAI_API_KEY, DIALOGFLOW_PROJECT_ID, GOOGLE_APPLICATION_CREDENTIALS_PATH, TELEGRAM_BOT_TOKEN]):
+        from config import (
+            OPENAI_API_KEY,
+            DIALOGFLOW_PROJECT_ID,
+            GOOGLE_APPLICATION_CREDENTIALS_PATH,
+            TELEGRAM_BOT_TOKEN,
+        )
+except ImportError:
+    st.error("""
+    ⚠️ **Configuration Error**
+    
+    Please set up your environment variables or create a config.py file with your API keys.
+    
+    Required environment variables:
+    - OPENAI_API_KEY
+    - DIALOGFLOW_PROJECT_ID  
+    - GOOGLE_APPLICATION_CREDENTIALS_PATH
+    - TELEGRAM_BOT_TOKEN
+    
+    See config.sample.py for reference.
+    """)
+    st.stop()
+
 import time
 import json
 from datetime import datetime
